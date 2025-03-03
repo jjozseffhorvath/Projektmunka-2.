@@ -1,0 +1,30 @@
+{
+  "name": "projektmunka2_backend",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "mongoose": "^8.11.0",
+    "morgan": "~1.9.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "description": "Backend szerver a Projektmunka 2. tárgyhoz",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jjozseffhorvath/Projektmunka-2..git"
+  },
+  "author": "Horváth József, Csajághy Levente, Maloschik Péter, Scheuer Patrik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jjozseffhorvath/Projektmunka-2./issues"
+  },
+  "homepage": "https://github.com/jjozseffhorvath/Projektmunka-2.#readme"
+}
