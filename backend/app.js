@@ -13,7 +13,7 @@ var corsOptions = {
     origin: "http://localhost:8080"
 };
 
-const MONGODB_URI = "mongodb+srv://spatrik2001:projektmunka2@sandbox.zpzwgsx.mongodb.net/projektmunka2";
+const MONGODB_URI = "mongodb+srv://spatrik2001:<titkos jelszó>@sandbox.zpzwgsx.mongodb.net/projektmunka2";
 mongoose
     .connect(MONGODB_URI)
     .then(console.log("Csatlakozva a MongoDB adatbázishoz!"))
