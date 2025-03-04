@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// Bővítve lesz még pár infoval, amit adatbázisban tárolni lehet
 const patientSchema = new Schema({
     _id: Number,
     nev: {
