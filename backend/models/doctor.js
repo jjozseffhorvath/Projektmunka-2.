@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-// Bővítve lesz még pár infoval, amit adatbázisban tárolni lehet, mint pl. az időpontok
-const patientSchema = new Schema({
+// Itt is lesz majd bővítés, kezdésnek elegendőek ezek az adatok
+const doctorSchema = new Schema({
     nev: {
         type: String,
         reuqired: true,
@@ -16,17 +16,12 @@ const patientSchema = new Schema({
         type: String,
         required: true
     },
-    taj: {
-        type: Number,
-        required: true,
-        maxlength: 9
-    },
     resetToken: String,
     resetTokenExpiration: Date,
     isOrvos: {
         type: Boolean,
-        default: false
+        default: true
     }
 });
 
-module.exports = mongoose.model('Paciens', patientSchema);
+module.exports = mongoose.model('Orvos', doctorSchema);

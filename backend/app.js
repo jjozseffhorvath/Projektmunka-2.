@@ -1,9 +1,15 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-// var logger = require('morgan');
-var cors = require('cors');
-var mongoose = require('mongoose');
+const path = require('path');
+
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf');
+const flash = require('connect-flash');
+
+const Patient = require('./models/patient');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -22,13 +28,29 @@ mongoose
     });
 
 var app = express();
+const store = new MongoDBStore({
+    uri: MONGODB_URI,
+    collection: 'sessions'
+});
+const csrfProtection = csrf();
 
-// app.use(logger('dev'));
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(
+    session({
+        secret: 'my secret',
+        resave: false,
+        saveUninitialized: false,
+        store: store
+    })
+);
+
+app.use(csrfProtection);
+app.use(flash());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
