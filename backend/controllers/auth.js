@@ -102,5 +102,79 @@ exports.postLogout = (req, res, next) => {
     });
 };
 
-// TODO
-// Elfelejtett jelszó kérés, illetve új jelszó beállítása
+exports.getReset = (req, res, next) => {
+    res.render('auth/reset', {
+        path: '/reset',
+        pageTitle: 'Elfelejtett jelszó',
+        errorMessage: req.flash('error')
+    });
+};
+
+exports.postReset = (req, res, next) => {
+    crypto.randomBytes(32, (err, buffer) => {
+        if (err) {
+            return res.redirect('/reset');
+        }
+        const token = buffer.toString('hex');
+        Patient.findOne({ email: req.body.email })
+            .then(user => {
+                if (!user) {
+                    req.flash('error', 'Ezzel az email címmel még nem regisztráltak.');
+                    return res.redirect('/reset');
+                }
+                user.resetToken = token;
+                user.resetTokenExpiration = Date.now() + 3600000;
+                return user.save();
+            })
+            .then(result => {
+                res.redirect('/');
+                transporter.sendMail({
+                    to: req.body.email,
+                    from: 'scheuer.patrik@hallgato.sze.hu',
+                    subject: 'Jelszó helyreállítás',
+                    html: `
+                        <p>Jelszó helyreállítást kezdeményeztél.</p>
+                        <p>Kattints az <a href="http://localhost:8080/reset/${token}">alábbi linkre</a> az új jelszavad beállításához.</p>`
+                })
+            })
+    });
+};
+
+exports.getNewPassword = (req, res, next) => {
+    const token = req.params.token;
+    Patient.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() }})
+        .then(user => {
+            if (!user) {
+                return res.redirect('/');
+            }
+            res.render('auth/new-password', {
+                path: '/new-password',
+                pageTitle: 'Új jelszó igénylés',
+                errorMessage: req.flash('error'),
+                userId: user._id.toString(),
+                passwordToken: token
+            });
+        })
+};
+
+exports.postNewPassword = (req, res, next) => {
+    const newPassword = req.body.password;
+    const userId = req.body.userId;
+    const passwordToken = req.body.passwordToken;
+    let resetUser;
+
+    Patient.findOne({ resetToken: passwordToken, resetTokenExpiration: { $gt: Date.now() }, _id: userId})
+        .then(user => {
+            resetUser = user;
+            return bcrypt.hash(newPassword, 12);
+        })
+        .then(hashedPassword => {
+            resetUser.password = hashedPassword;
+            resetUser.resetToken = undefined;
+            resetUser.resetTokenExpiration = undefined;
+            return resetUser.save();
+        })
+        .then(result => {
+            res.redirect('/login');
+        })
+};
