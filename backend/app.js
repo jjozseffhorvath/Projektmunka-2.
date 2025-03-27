@@ -18,7 +18,7 @@ var corsOptions = {
     credentials: true
 };
 
-const MONGODB_URI = "mongodb+srv://spatrik2001:<titkos jelszó>@sandbox.zpzwgsx.mongodb.net/projektmunka2";
+const MONGODB_URI = "mongodb+srv://spatrik2001:projektmunka2@sandbox.zpzwgsx.mongodb.net/projektmunka2";
 mongoose
     .connect(MONGODB_URI)
     .then(console.log("Csatlakozva a MongoDB adatbázishoz!"))
@@ -31,7 +31,7 @@ const store = new MongoDBStore({
     uri: MONGODB_URI,
     collection: 'sessions'
 });
-const csrfProtection = csrf();
+const csrfProtection = csrf({ cookie: true });
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -70,6 +70,7 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.cookie('XSRF-TOKEN', req.csrfToken());
     res.locals.csrfToken = req.csrfToken();
     next();
 });

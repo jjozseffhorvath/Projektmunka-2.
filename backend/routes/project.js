@@ -3,13 +3,13 @@ const router = express.Router();
 
 const authController = require('../controllers/auth');
 
-router.get('/auth/login', authController.getLogin);
+//router.get('/auth/login', authController.getLogin);
 
-router.get('/auth/signup', authController.getSignup);
+//router.get('/auth/signup', authController.getSignup);
 
-router.get('/auth/reset', authController.getReset);
+//router.get('/auth/reset', authController.getReset);
 
-router.get('/auth/reset/:token', authController.getNewPassword);
+//router.get('/auth/reset/:token', authController.getNewPassword);
 
 router.post('/auth/login', authController.postLogin);
 

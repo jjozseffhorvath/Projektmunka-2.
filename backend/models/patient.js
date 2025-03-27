@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const patientSchema = new Schema({
     nev: {
         type: String,
-        reuqired: true,
+        required: true,
         maxlength: 50
     },
     email: {
@@ -21,6 +21,9 @@ const patientSchema = new Schema({
         required: true,
         maxlength: 9
     },
+    appointments: {
+        dates: [Date]
+    },
     resetToken: String,
     resetTokenExpiration: Date,
     isOrvos: {
@@ -29,4 +32,4 @@ const patientSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('Paciens', patientSchema);
+module.exports = mongoose.model('Patients', patientSchema);
