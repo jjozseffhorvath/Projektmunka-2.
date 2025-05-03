@@ -14,7 +14,8 @@
                 <div class="mb-3 d-flex justify-content-end">
                     <a class="text-decoration-none" href="/reset">Elfelejtett jelszó</a>
                 </div>
-                <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+                <!--A hidden input felesleges, mivel fejlécbe küldjük a CSRF tokent-->
+                <!--<input type="hidden" name="_csrf" value="{{ csrfToken }}">-->
                 <button class="specialButton btn-sm" type="submit">Bejelentkezés</button>
                 <div class="pt-3 text-muted">
                     Nincs még fiókja? <a class="text-decoration-none" href="/signup">Regisztráció</a>
@@ -42,11 +43,21 @@ export default {
             try {
                 const csrfToken = this.getCsrfToken();
                 console.log('Kérés előtt CSRF token:', this.getCsrfToken());
-                const user = { email: this.email, password: this.password, _csrf: csrfToken };
-                const response = await AuthService.postLogin(user);
+                const user = { email: this.email, password: this.password };
+                const response = await AuthService.postLogin(user, {
+                    headers: {
+                        'X-XSRF-TOKEN': csrfToken
+                    }
+                });
 
-                // Responseból frissítjük a CSRF tokent
-                document.cookie = `XSRF-TOKEN=${response.csrfToken}; path=/`;
+                // Responseból frissítjük a CSRF tokent (persze ha van)
+                if (response.csrfToken) {
+                    document.cookie = `XSRF-TOKEN=${response.csrfToken}; path=/`;
+                }
+                //document.cookie = `XSRF-TOKEN=${response.csrfToken}; path=/`;
+
+                console.log('Frontend oldali CSRF token:', this.getCsrfToken());
+                console.log('Backend oldali CSRF token:', response.csrfToken);
                 
                 this.$router.push("/");
                 this.isLoggedIn = true;
@@ -59,7 +70,7 @@ export default {
             }
         },
         getCsrfToken() {
-            const csrfCookie = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='));
+            const csrfCookie = document.cookie.split('; ').find(row => row.startsWith('_csrf='));
             return csrfCookie ? csrfCookie.split('=')[1] : null;
         },
     },

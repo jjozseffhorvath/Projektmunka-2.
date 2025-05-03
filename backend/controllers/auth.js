@@ -60,12 +60,9 @@ exports.getSignup = (req, res, next) => {
 
 exports.postLogin = (req, res, next) => {
     console.log('Bejelentkezési kérés:', req.body);
-    console.log('CSRF token a kérésben:', req.body._csrf);
-    console.log('CSRF token a sütiben:', req.csrfToken());
-
-    if (!req.body._csrf || req.body._csrf !== req.csrfToken()) {
-        return res.status(403).json({ message: 'Hibás CSRF token!' });
-    }
+    console.log('CSRF token a sütiben:', req.cookies._csrf);
+    console.log('CSRF token a fejlécben:', req.headers['x-xsrf-token']);
+    console.log('Generált token:', req.csrfToken());
 
     const email = req.body.email;
     const password = req.body.password;
