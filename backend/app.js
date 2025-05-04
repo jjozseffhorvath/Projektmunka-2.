@@ -7,12 +7,13 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
-const flash = require('connect-flash');
 
 const Patient = require('./models/patient');
 
 var projectRouter = require('./routes/project');
 
+// TODO
+// Egy külön config fájlba dobni az URI-t, illetve más kényesebb adatot, mint pl. api kulcsok, amit Github repo-ba nem akarok feltenni
 const MONGODB_URI = "mongodb+srv://spatrik2001:<jelszó>@sandbox.zpzwgsx.mongodb.net/projektmunka2";
 mongoose
     .connect(MONGODB_URI)
@@ -38,7 +39,6 @@ app.use((req, res, next) => {
     next();
 });
 
-const csrfProtection = csrf({ cookie: true });
 
 var corsOptions = {
     origin: "http://localhost:8080",
@@ -56,27 +56,16 @@ app.use(
         resave: false,
         saveUninitialized: false,
         store: store,
-        // cookie: {
-        //     httpOnly: false,
-        //     secure: false,
-        //     sameSite: 'lax'
-        // }
+        cookie: {
+            httpOnly: true,
+            secure: false,
+            maxAge: 1000 * 60 * 60 * 24 // 1 nap
+        }
     })
 );
 
+const csrfProtection = csrf({ cookie: true });
 app.use(csrfProtection);
-app.use(flash());
-
-// CSRF token generálásának logolása
-app.use((req, res, next) => {
-    try {
-        console.log('Generált CSRF token:', req.csrfToken());
-    } catch(err) {
-        console.error('Hiba', err);
-    }
-    //console.log('Generált CSRF token:', req.csrfToken());
-    next();
-});
 
 app.use((req, res, next) => {
     if (!req.session.user) {
@@ -90,7 +79,7 @@ app.use((req, res, next) => {
         .catch(err => console.log(err));
 });
 
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isLoggedIn;
     res.cookie('_csrf', req.csrfToken(), {
         httpOnly: false,
@@ -99,7 +88,12 @@ app.use((req, res, next) => {
     });
     res.locals.csrfToken = req.csrfToken();
     next();
-});
+});*/
+
+// CSRF token endpoint
+app.get('/csrf-token', (req, res, next) => {
+    res.json({ csrfToken: req.csrfToken() });
+})
 
 app.use('/api', projectRouter);
 

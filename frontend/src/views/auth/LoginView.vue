@@ -2,7 +2,7 @@
     <div class="login">
         <div v-if="error" class="alert alert-danger">{{ error }}</div>
         <div class="login-form shadow">
-            <form method="post" @submit.prevent="login">
+            <form @submit.prevent="login">
                 <!--<img src="@/assets/img/logo.png" class="img-fluid">-->
                 <h4>Jelentkezzen be webáruházunkba!</h4>
                 <div class="mb-3 mt-5">
@@ -14,8 +14,6 @@
                 <div class="mb-3 d-flex justify-content-end">
                     <a class="text-decoration-none" href="/reset">Elfelejtett jelszó</a>
                 </div>
-                <!--A hidden input felesleges, mivel fejlécbe küldjük a CSRF tokent-->
-                <!--<input type="hidden" name="_csrf" value="{{ csrfToken }}">-->
                 <button class="specialButton btn-sm" type="submit">Bejelentkezés</button>
                 <div class="pt-3 text-muted">
                     Nincs még fiókja? <a class="text-decoration-none" href="/signup">Regisztráció</a>
@@ -41,7 +39,7 @@ export default {
     methods: {
         async login() {
             try {
-                const csrfToken = this.getCsrfToken();
+                /*const csrfToken = this.getCsrfToken();
                 console.log('Kérés előtt CSRF token:', this.getCsrfToken());
                 const user = { email: this.email, password: this.password };
                 const response = await AuthService.postLogin(user, {
@@ -60,13 +58,22 @@ export default {
                 console.log('Backend oldali CSRF token:', response.csrfToken);
                 
                 this.$router.push("/");
+                this.isLoggedIn = true;*/
+                const csrfToken = this.getCsrfToken();
+                const response = await AuthService.postLogin({ email: this.email, password: this.password }, {
+                    headers: {
+                        'X-XSRF-TOKEN': csrfToken
+                    }
+                });
+
+                if (response.csrfToken) {
+                    document.cookie = `XSRF-TOKEN=${response.csrfToken}; path=/`;
+                }
+                
+                this.$router.push("/");
                 this.isLoggedIn = true;
             } catch(err) {
-                if (err.response && err.response.data && err.response.data.message) {
-                    this.error = err.response.data.message;
-                } else {
-                    this.error = "Hiba történt a bejelentkezés során.";
-                }
+                this.error = err.response?.data?.message || "Hiba történt a bejelentkezés során.";
             }
         },
         getCsrfToken() {

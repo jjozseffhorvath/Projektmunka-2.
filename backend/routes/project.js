@@ -1,24 +1,18 @@
 const express = require('express');
+const csrf = require('csurf');
 const router = express.Router();
 
 const authController = require('../controllers/auth');
+const csrfProtection = csrf({ cookie: true });
 
-//router.get('/auth/login', authController.getLogin);
+router.post('/auth/login', csrfProtection, authController.login);
 
-//router.get('/auth/signup', authController.getSignup);
-
-//router.get('/auth/reset', authController.getReset);
-
-//router.get('/auth/reset/:token', authController.getNewPassword);
-
-router.post('/auth/login', authController.postLogin);
-
-router.post('/auth/signup', authController.postSignup);
+router.post('/auth/signup', csrfProtection, authController.signup);
 
 router.post('/auth/logout', authController.postLogout);
 
-router.post('/auth/reset', authController.postReset);
+router.post('/auth/reset', csrfProtection, authController.postReset);
 
-router.post('/auth/new-password', authController.postNewPassword);
+router.post('/auth/new-password', csrfProtection, authController.postNewPassword);
 
 module.exports = router;

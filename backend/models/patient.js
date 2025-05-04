@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 // Bővítve lesz még pár infoval, amit adatbázisban tárolni lehet, mint pl. az időpontok
 const patientSchema = new Schema({
-    nev: {
+    name: {
         type: String,
         required: true,
         maxlength: 50
@@ -22,14 +22,11 @@ const patientSchema = new Schema({
         maxlength: 9
     },
     appointments: {
-        dates: [Date]
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Appointments'
     },
     resetToken: String,
-    resetTokenExpiration: Date,
-    isOrvos: {
-        type: Boolean,
-        default: false
-    }
+    resetTokenExpiration: Date
 });
 
 module.exports = mongoose.model('Patients', patientSchema);
